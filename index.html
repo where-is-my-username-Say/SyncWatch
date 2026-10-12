@@ -81,6 +81,20 @@ p.x{border-left-color:var(--hot)}
 #tr{position:absolute;top:0;left:0;right:0;height:4px;background:rgba(20,80,40,.15)}
 #p{height:100%;width:0;background:linear-gradient(90deg,var(--cool),var(--hot));transition:width 1s linear}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-iteration-count:1!important;transition:none!important}.r{opacity:1}}
+#sc{font-weight:700}#sc.dim{opacity:.12}
+@media(max-width:430px){#m{display:none}#bar{gap:6px;padding-left:8px;padding-right:8px}}
+#pn{position:fixed;inset:0;z-index:20;background:rgba(244,252,240,.98);color:var(--dk);overflow-y:auto;padding:calc(14px + env(safe-area-inset-top,0px)) 16px calc(24px + env(safe-area-inset-bottom,0px));display:none}
+#pn.open{display:block}
+#pn .tp{display:flex;align-items:center;gap:10px;position:sticky;top:-14px;background:rgba(244,252,240,.98);padding:8px 0 10px;z-index:2}
+#pn .tp h3{flex:1;font:700 1.2rem/1.2 Georgia,serif}
+#pn button{font:inherit;color:var(--dk);background:#e1f4da;border:1px solid rgba(20,80,40,.4);border-radius:8px;padding:7px 12px;cursor:pointer}
+#pn .bk{background:#fff;border:1px solid rgba(20,80,40,.25);border-left:6px solid var(--cool);border-radius:12px;padding:12px 14px;margin:0 0 12px;box-shadow:0 4px 14px rgba(0,50,20,.12)}
+#pn .bk.cur{border-left-color:var(--hot);box-shadow:0 0 0 3px rgba(238,122,31,.35)}
+#pn .bk h4{font-size:1.05rem;margin-bottom:2px}
+#pn .tm{font-size:.8rem;color:#4a6b55;margin-bottom:8px}
+#pn .bk p{background:none;color:var(--dk);padding:0;width:auto;max-width:none;font-size:1.12rem;line-height:1.5;margin:0 0 8px}
+#pn .pt{font-size:.9rem;color:#b25a0b;font-style:italic;margin:2px 0 10px}
+#pn .ft{font-size:.85rem;color:#4a6b55;margin-top:6px}
 </style></head><body>
 <div id="bg"></div><div id="hot"></div>
 <div class="sun2"></div>
@@ -138,7 +152,8 @@ p.x{border-left-color:var(--hot)}
 <p class="r n x">Warm weather destroys crops. People need more food. So there is more farming, and the cycle starts again.</p>
 </section>
 
-<div id="bar"><div id="tr"><div id="p"></div></div><button id="pv" aria-label="Previous slide">‹</button><button id="au">Auto</button><button id="nx" aria-label="Next slide">›</button><span id="c"></span><span id="m"></span></div>
+<div id="pn" role="dialog" aria-label="Presenter script"></div>
+<div id="bar"><div id="tr"><div id="p"></div></div><button id="pv" aria-label="Previous slide">‹</button><button id="au">Auto</button><button id="nx" aria-label="Next slide">›</button><button id="sc" aria-label="Presenter script">🎤 Script</button><span id="c"></span><span id="m"></span></div>
 
 <script>
 const S=[...document.querySelectorAll('.s')],T=[35,40,70],H=[0,.5,.9],N=S.length,TOT=T.reduce((x,y)=>x+y,0),Q=x=>document.querySelector(x),F=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
@@ -152,8 +167,19 @@ p.setAttribute('points',[[x+tx*4,y+ty*4],[x-tx*2+nx*3,y-ty*2+ny*3],[x-tx*2-nx*3,
 function draw(){const e=T.slice(0,i).reduce((x,y)=>x+y,0)+t;Q('#c').textContent=(i+1)+' / '+N;Q('#p').style.width=e/TOT*100+'%';Q('#m').textContent=F(e)+' / '+F(TOT);Q('#au').textContent=a?'Pause':'Auto'}
 function go(n){i=Math.max(0,Math.min(N-1,n));t=0;S.forEach((s,k)=>s.classList.toggle('on',k==i));S[i].scrollTop=0;Q('#hot').style.opacity=H[i];draw()}
 Q('#nx').onclick=()=>go(i+1);Q('#pv').onclick=()=>go(i-1);Q('#au').onclick=()=>{a=!a;draw()};
-addEventListener('keydown',e=>{if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();go(i+1)}if(['ArrowLeft','PageUp'].includes(e.key))go(i-1)});
-let sx=0;addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-sx;if(Math.abs(d)>60)go(i+(d<0?1:-1))});
+addEventListener('keydown',e=>{if(e.key=='s'||e.key=='S'){tg();return}if(pn.classList.contains('open'))return;if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();go(i+1)}if(['ArrowLeft','PageUp'].includes(e.key))go(i-1)});
+let sx=0;addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-sx;if(!pn.classList.contains('open')&&Math.abs(d)>60)go(i+(d<0?1:-1))});
 setInterval(()=>{if(!a)return;t++;if(t>=T[i]){if(i<N-1)go(i+1);else{a=0;t=T[i]}}draw()},1000);
+
+// ===== Presenter script (only for the speakers) =====
+const SC=[
+{t:"Commercial animal farming",tm:"About 30 seconds",pt:"Point to: the four cards (food, milk, eggs, meat). Then point to the two orange cards.",l:["Hello everyone. Today we talk about commercial animal farming.","This means we keep many animals on big farms.","People do this to get food, milk, eggs and meat.","But it needs a lot. Big farms need huge areas of land. And the animals need a lot of food to eat."]},
+{t:"The effects",tm:"About 40 seconds",pt:"Point to: the cow and the grey puffs. Then the globe. Then the orange bar.",l:["Now let us look at the effects.","Look at the cow. Animals release methane gas. The grey puffs are methane.","Methane goes up in the air. It causes global warming. The Earth gets hotter.","Also, killing animals is a bad way."]},
+{t:"A cycle that never stops",tm:"About 60 seconds",pt:"Point to: the glowing dot. Follow it around the circle, number 1 to 6. Then read the example cards.",l:["Now look at the cycle. It never stops.","1. Commercial animal farming makes methane.","2. Methane causes global warming.","3. The temperature goes up.","4. Hot weather destroys the crops in farms.","5. Then people need more food.","6. So there is more farming. And the cycle starts again.","For example: a big farm has 1,000 cows. A cow burps and methane goes in the air. In summer it is 45 degrees, and the sun burns the wheat. People are hungry and they want more milk, eggs and meat.","Thank you for listening. Do you have any questions?"]}];
+const pn=Q('#pn');
+function bp(){pn.innerHTML=`<div class="tp"><h3>🎤 Script (only for us)</h3><button id="dm">Hide the button</button><button id="cx">✕ Close</button></div><p class="ft" style="padding:0 0 10px">Read this before the presentation. Tap a box to go to that slide. Press S to open or close this page.</p>`+SC.map((x,k)=>`<div class="bk${k==i?' cur':''}" data-k="${k}"><h4>Slide ${k+1} · ${x.t}</h4><div class="tm">${x.tm}</div><div class="pt">${x.pt}</div>${x.l.map(z=>`<p>${z}</p>`).join('')}<button data-g="${k}">Show this slide</button></div>`).join('')+`<p class="ft">Tip: "Hide the button" makes the Script button almost invisible, but it still works in the same place.</p>`}
+function tg(){if(pn.classList.contains('open')){pn.classList.remove('open');return}if(a){a=0;draw()}bp();pn.classList.add('open');const c=pn.querySelector('.cur');if(c)pn.scrollTop=c.offsetTop-60}
+Q('#sc').onclick=tg;
+pn.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.id=='cx')tg();else if(b.id=='dm'){Q('#sc').classList.toggle('dim');b.textContent=Q('#sc').classList.contains('dim')?'Show the button':'Hide the button'}else if(b.dataset.g!==undefined){tg();go(+b.dataset.g)}});
 go(0);
 </script></body></html>
